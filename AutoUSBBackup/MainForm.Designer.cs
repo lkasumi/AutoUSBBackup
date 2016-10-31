@@ -28,48 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lbMessage = new System.Windows.Forms.Label();
-            this.driveList = new System.Windows.Forms.ListBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // lbMessage
+            // button1
             // 
-            this.lbMessage.AutoSize = true;
-            this.lbMessage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbMessage.Font = new System.Drawing.Font("굴림", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.lbMessage.Location = new System.Drawing.Point(12, 9);
-            this.lbMessage.MinimumSize = new System.Drawing.Size(100, 100);
-            this.lbMessage.Name = "lbMessage";
-            this.lbMessage.Size = new System.Drawing.Size(100, 100);
-            this.lbMessage.TabIndex = 0;
-            // 
-            // driveList
-            // 
-            this.driveList.FormattingEnabled = true;
-            this.driveList.ItemHeight = 12;
-            this.driveList.Location = new System.Drawing.Point(118, 9);
-            this.driveList.Name = "driveList";
-            this.driveList.Size = new System.Drawing.Size(165, 172);
-            this.driveList.TabIndex = 1;
+            this.button1.Location = new System.Drawing.Point(166, 93);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(105, 78);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 190);
-            this.Controls.Add(this.driveList);
-            this.Controls.Add(this.lbMessage);
+            this.ClientSize = new System.Drawing.Size(368, 318);
+            this.Controls.Add(this.button1);
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Label lbMessage;
-        private System.Windows.Forms.ListBox driveList;
+        private System.Windows.Forms.Button button1;
     }
 }
