@@ -20,9 +20,9 @@ namespace AutoUSBBackup
             refreshDrives();
         }
 
-        public DriveInfo[] getDrivesInfo()
+        public List<DriveInfo> getDrivesInfo()
         {
-            return _drives.ToArray();
+            return _drives.ToList();
         }
 
         public DriveInfo getDriveInfo(ref int idx)

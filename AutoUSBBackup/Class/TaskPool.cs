@@ -16,6 +16,19 @@ namespace AutoUSBBackup
             tasks.Add(key, t);
         }
 
+        public void RemoveTask(String key)
+        {
+            if (tasks[key] != null)
+            {
+#if DEBUG
+                Console.WriteLine("Task({0}) is removed", key);
+#endif
+                this.StopTask(key);
+                tasks.Remove(key);
+            }
+                
+        }
+
         public void RunTask(String key)
         {
             if (tasks[key].Status.Equals(TaskStatus.Running) == false)
@@ -28,10 +41,13 @@ namespace AutoUSBBackup
         public void StopTask(String key)
         {
             if (tasks[key].Status.Equals(TaskStatus.Running) == true)
+            {
+                tasks[key].Wait();
                 tasks[key].Dispose();
 #if DEBUG
-            Console.WriteLine("Task({0}) is stopped.", key);
+                Console.WriteLine("Task({0}) is stopped.", key);
 #endif
+            }
         }
 
         public void ClearTasks()

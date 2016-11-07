@@ -9,17 +9,16 @@ namespace AutoUSBBackup
 {
     class FileManager
     {
-        private String drivePath;
-        private String filePath;
+        //private String drivePath;
+        //private String filePath;
+        private String backupPath;
+
         private List<FileInfo> fileData = new List<FileInfo>();
 
-        public FileManager(String drivePath, String filePath)
+        public FileManager(String path)
         {
-            this.drivePath = drivePath;
-            this.filePath =  filePath;
-
-            String path = this.drivePath + this.filePath;
-
+            this.backupPath = path;
+ 
             if (Directory.Exists(path) == false)
             {
                 Directory.CreateDirectory(path);
@@ -32,10 +31,9 @@ namespace AutoUSBBackup
 
         public void fileRefresh()
         {
-            String path = this.drivePath + this.filePath;
             fileData.Clear();
             clearFiles();
-            getFiles(path);
+            getFiles(this.backupPath);
         }
 
         public void clearFiles()
@@ -63,46 +61,55 @@ namespace AutoUSBBackup
 
         public void FileInput(FileInfo[] files, DirectoryInfo[] dirs, String destDir)
         {
-            String path = this.drivePath + this.filePath;
-
-            // if dir is not exist, make it
-            if (Directory.Exists(path + destDir) == false)
-                Directory.CreateDirectory(path + destDir);
-
-            // output files
-            foreach (FileInfo file in files)
+            try
             {
-                int find_idx = fileData.FindIndex(x => (destDir + x.Name).Equals(destDir + file.Name));
+                // if dir is not exist, make it
+                if (Directory.Exists(this.backupPath + destDir) == false)
+                    Directory.CreateDirectory(this.backupPath + destDir);
 
-                if (find_idx < 0)
+                // output files
+                foreach (FileInfo file in files)
                 {
-                    file.CopyTo(path + destDir + file.Name, true);
-#if DEBUG
-                    Console.WriteLine("file Add : " + file.DirectoryName + "\tfileName:" + file.FullName + "\tsize:" + file.Length);
-#endif
-                }
-                else
-                {
-                    // file add if length is modified
-                    if (file.Length.Equals(fileData[find_idx].Length) == false)
+                    int find_idx = fileData.FindIndex(x => (destDir + x.Name).Equals(destDir + file.Name));
+
+                    //if (find_idx < 0)
+                    // always overwrite file
                     {
-                        file.CopyTo(path + destDir + file.Name, true);
+                        file.CopyTo(this.backupPath + destDir + file.Name, true);
 #if DEBUG
-                        Console.WriteLine("file Overwrite : " + file.DirectoryName + "\tfileName:" + file.FullName + "\tsize:" + file.Length);
+                        Console.WriteLine("file Add : " + file.DirectoryName + "\tfileName:" + file.FullName + "\tsize:" + file.Length);
 #endif
+
+#region nouse
+                    }
+                    //else
+                    //{
+                    // file add if length is modified
+                    //if (file.Length.Equals(fileData[find_idx].Length) == false)
+                    //{
+                    //file.CopyTo(path + destDir + file.Name, true);
+#if DEBUG
+                    //Console.WriteLine("file Overwrite : " + file.DirectoryName + "\tfileName:" + file.FullName + "\tsize:" + file.Length);
+#endif
+                    //}
+                    //}
+#endregion
+                }
+
+                // mkdir subdirs and loop
+                if (dirs.Length > 0)
+                {
+                    foreach (DirectoryInfo dir in dirs)
+                    {
+                        String d = dir.FullName.Replace(dir.Root.ToString(), "");
+
+                        FileInput(dir.GetFiles(), dir.GetDirectories(), d + "\\");
                     }
                 }
             }
-
-            // mkdir subdirs and loop
-            if (dirs.Length > 0)
+            catch(Exception e)
             {
-                foreach (DirectoryInfo dir in dirs)
-                {
-                    String d = dir.FullName.Replace(dir.Root.ToString(), "");
-
-                    FileInput(dir.GetFiles(), dir.GetDirectories(), d + "\\");
-                }
+                Console.WriteLine("Exception : " + e.Message);
             }
         }
 

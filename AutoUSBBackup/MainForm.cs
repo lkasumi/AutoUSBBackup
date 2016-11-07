@@ -21,8 +21,12 @@ namespace AutoUSBBackup
         UInt32 DBT_DEVICEREMOVECOMPLETE = 0x8004;
 
         private DriveInfoManager driveInfoManager = new DriveInfoManager();
+        private List<DriveInfo> currerntDrives = new List<DriveInfo>();
+
         private ConcurrentDictionary<String, FileManager> fileManager = new ConcurrentDictionary<string, FileManager>();
         private TaskPool taskPool = new TaskPool();
+
+        private String backupPath;
 
         public MainForm()
         {
@@ -44,9 +48,12 @@ namespace AutoUSBBackup
 #endif
 
                 driveInfoManager.refreshDrives();
-                DriveInfo[] drives = driveInfoManager.getDrivesInfo();
+                currerntDrives = driveInfoManager.getDrivesInfo();
 
-                foreach (DriveInfo dinfo in drives)
+                if (backupPath == null || backupPath.Equals(""))
+                    return;
+
+                foreach (DriveInfo dinfo in currerntDrives)
                 {
                     try
                     {
@@ -57,10 +64,13 @@ namespace AutoUSBBackup
                     {
                         String dname = dinfo.Name.Replace(":\\", "");
 
-                        FileManager fm = new FileManager("c:\\", "test\\" + dname + "\\");
+                        FileManager fm = new FileManager(backupPath + "\\" +  dname + "\\");
                         fm.fileRefresh();
 
-                        Action action = () => { fm.FileInput(dinfo.RootDirectory.GetFiles(), dinfo.RootDirectory.GetDirectories(), "\\"); };
+                        Action action = () =>
+                            {
+                                fm.FileInput(dinfo.RootDirectory.GetFiles(), dinfo.RootDirectory.GetDirectories(), "\\");
+                            };
 
                         taskPool.AddTask(dinfo.Name, action);
                         taskPool.RunTask(dinfo.Name);
@@ -74,19 +84,37 @@ namespace AutoUSBBackup
             if ((m.Msg == WM_DEVICECHANGE) && (m.WParam.ToInt32() == DBT_DEVICEREMOVECOMPLETE))
             {
                 driveInfoManager.updateDeviceInfo();
+                List<DriveInfo> _drives = driveInfoManager.getDrivesInfo();
+
+                foreach(DriveInfo info in currerntDrives)
+                {
+                    int find_idx = _drives.FindIndex(x => info.Name.Equals(x.Name));
+
+                    if (find_idx < 0)
+                    {
+                        taskPool.RemoveTask(info.Name);
+                    }
+                }
 
 #if DEBUG
                 Console.WriteLine("Drive is detached");
 #endif
             }
-            
 
             base.WndProc(ref m);
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private void textboxDirString_Click(object sender, EventArgs e)
         {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
 
+            DialogResult result = fbd.ShowDialog();
+
+            if (!string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            {
+                textboxDirString.Text = fbd.SelectedPath;
+                this.backupPath = fbd.SelectedPath;
+            }
         }
     }
 }
